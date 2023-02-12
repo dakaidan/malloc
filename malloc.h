@@ -13,6 +13,9 @@ struct block_meta {
     int magic; // For debugging only. TODO: remove this in non-debug mode.
 };
 
+// Align on 8 bytes boundary.
+#define ALIGNMENT 8
+
 #define META_SIZE sizeof(struct block_meta)
 
 void *global_base = NULL;

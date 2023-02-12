@@ -12,11 +12,14 @@ struct block_meta *find_free_block(struct block_meta **last, size_t size) {
 struct block_meta *request_space(struct block_meta *last, size_t size) {
     struct block_meta *block;
     block = sbrk(0);
-    void *request = sbrk(size + META_SIZE);
+    void *request = sbrk(size + META_SIZE + ALIGNMENT - 1);
     assert((void *) block == request); // Not thread safe.
     if (request == (void *) -1) {
         return NULL; // sbrk failed.
     }
+
+    // align block if needed
+    block = (struct block_meta *) (((size_t) block + ALIGNMENT - 1) & ~(ALIGNMENT - 1));
 
     if (last) { // NULL on first request.
         last->next = block;
@@ -46,7 +49,7 @@ void *malloc(size_t size) {
         struct block_meta *last = global_base;
         block = find_free_block(&last, size);
         if (!block) { // Failed to find free block in existing space.
-            block = request_space(last, size); // Request more space.
+            block = request_space(NULL, size); // Request more space.
             if (!block) {
                 return NULL;
             }

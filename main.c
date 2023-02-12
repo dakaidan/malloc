@@ -30,6 +30,11 @@ void testCalloc() {
     free(arr);
 }
 
+void testAlignment() {
+    int *arr = malloc(10 * sizeof(int));
+    assert(((size_t) arr & (ALIGNMENT - 1)) == 0);
+}
+
 
 int main() {
     printf("Hello, Malloc!\n");
@@ -37,6 +42,7 @@ int main() {
     testMalloc();
     testRealloc();
     testCalloc();
+    testAlignment();
 
     return 0;
 }
