@@ -1,4 +1,5 @@
 #include "malloc.h"
+#include <errno.h>
 
 struct block_meta *find_free_block(struct block_meta **last, size_t size) {
     struct block_meta *current = global_base;
@@ -33,7 +34,6 @@ struct block_meta *request_space(struct block_meta *last, size_t size) {
 
 void *malloc(size_t size) {
     struct block_meta *block;
-    // TODO: align size?
 
     if (size <= 0) {
         return NULL;
@@ -102,7 +102,8 @@ void *realloc(void *ptr, size_t size) {
     void *new_ptr;
     new_ptr = malloc(size);
     if (!new_ptr) {
-        return NULL; // TODO: set errno on failure.
+        errno = ENOMEM;
+        return NULL;
     }
     memcpy(new_ptr, ptr, block_ptr->size);
     free(ptr);
@@ -110,7 +111,12 @@ void *realloc(void *ptr, size_t size) {
 }
 
 void *calloc(size_t nelem, size_t elsize) {
-    size_t size = nelem * elsize; // TODO: check for overflow.
+    size_t size = nelem * elsize;
+
+    if( elsize != 0 && (size / elsize != nelem || (size % elsize) != 0)) {
+        return NULL;
+    }
+
     void *ptr = malloc(size);
     memset(ptr, 0, size);
     return ptr;

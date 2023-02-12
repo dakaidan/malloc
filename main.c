@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 
 #include "malloc.h"
 
@@ -35,6 +36,11 @@ void testAlignment() {
     assert(((size_t) arr & (ALIGNMENT - 1)) == 0);
 }
 
+void callocTestWithOverflow() {
+    int *arr = calloc(UINTMAX_MAX, sizeof(int));
+    assert(arr == NULL);
+}
+
 
 int main() {
     printf("Hello, Malloc!\n");
@@ -43,6 +49,7 @@ int main() {
     testRealloc();
     testCalloc();
     testAlignment();
+    callocTestWithOverflow();
 
     return 0;
 }
